@@ -119,17 +119,13 @@ type grpcKeepAlive struct {
 }
 
 func New(opts ...Option) (Server, error) {
-
 	srv := new(server)
-
-	srv.mu.Lock()
-	defer srv.mu.Unlock()
-
 	for _, opt := range append(defaultOpts, opts...) {
 		opt(srv)
 	}
+
 	if srv.eg == nil {
-		log.Warn(srv.name)
+		log.Warnf("error group is nil, server name: %s", srv.name)
 		srv.eg = errgroup.Get()
 	}
 
@@ -200,6 +196,8 @@ func New(opts ...Option) (Server, error) {
 			)
 		}
 		srv.grpc.reg(srv.grpc.srv)
+	default:
+		return nil, fmt.Errorf("unknown server mode, server name: %s, mode: %s", srv.name, srv.mode)
 	}
 
 	return srv, nil
