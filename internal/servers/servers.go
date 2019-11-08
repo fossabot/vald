@@ -37,8 +37,8 @@ type Listener interface {
 type listener struct {
 	servers map[string]server.Server
 	eg      errgroup.Group
-	sus     []string
-	sds     []string
+	sus     []string // startup strategy
+	sds     []string // shutdown strategy
 	sddur   time.Duration
 }
 
