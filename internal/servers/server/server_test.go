@@ -35,13 +35,19 @@ func TestNew(t *testing.T) {
 	type args struct {
 		opts []Option
 	}
-	tests := []struct {
+	type test struct {
 		name    string
 		args    args
 		want    Server
 		wantErr bool
-	}{
-		// TODO: Add test cases.
+	}
+	tests := []test{
+		test{
+			name: "return server success",
+			args: args{
+				opts: []Option{},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
