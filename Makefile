@@ -26,6 +26,7 @@ KVS_IMAGE                      = $(NAME)-meta-redis
 NOSQL_IMAGE                    = $(NAME)-meta-cassandra
 BACKUP_MANAGER_MYSQL_IMAGE     = $(NAME)-manager-backup-mysql
 BACKUP_MANAGER_CASSANDRA_IMAGE = $(NAME)-manager-backup-cassandra
+CI_CONTAINER_IMAGE             = $(NAME)-ci-container
 
 NGT_VERSION := $(shell cat versions/NGT_VERSION)
 NGT_REPO = github.com/yahoojapan/NGT

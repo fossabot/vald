@@ -94,3 +94,12 @@ docker/name/backup-manager-cassandra:
 ## build backup-manager-cassandra image
 docker/build/backup-manager-cassandra: docker/build/base
 	docker build -f dockers/manager/backup/cassandra/Dockerfile -t $(REPO)/$(BACKUP_MANAGER_CASSANDRA_IMAGE) .
+
+.PHONY: docker/name/ci-container
+docker/name/ci-container:
+	@echo "$(REPO)/$(CI_CONTAINER_IMAGE)"
+
+.PHONY: docker/build/ci-container
+## build ci-container image
+docker/build/ci-container: docker/build/base
+	docker build -f dockers/ci/Dockerfile -t $(REPO)/$(CI_CONTAINER_IMAGE) . --build-arg BENCH_DATASET_MD5_DIR=$(BENCH_DATASET_MD5_DIR)
