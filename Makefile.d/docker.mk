@@ -102,4 +102,13 @@ docker/name/ci-container:
 .PHONY: docker/build/ci-container
 ## build ci-container image
 docker/build/ci-container: docker/build/base
-	docker build -f dockers/ci/Dockerfile -t $(REPO)/$(CI_CONTAINER_IMAGE) . --build-arg BENCH_DATASET_MD5_DIR=$(BENCH_DATASET_MD5_DIR)
+	docker build -f dockers/ci/base/Dockerfile -t $(REPO)/$(CI_CONTAINER_IMAGE) .
+
+.PHONY: docker/name/dataset-container
+docker/name/dataset-container:
+	@echo "$(REPO)/$(DATASET_CONTAINER_IMAGE)"
+
+.PHONY: docker/build/dataset-container
+## build dataset-container image
+docker/build/dataset-container: docker/build/ci-container
+	docker build -f dockers/ci/dataset/Dockerfile -t $(REPO)/$(DATASET_CONTAINER_IMAGE) . --build-arg BENCH_DATASET_MD5_DIR=$(BENCH_DATASET_MD5_DIR)

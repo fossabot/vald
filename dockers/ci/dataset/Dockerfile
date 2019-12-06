@@ -14,25 +14,12 @@
 # limitations under the License.
 #
 
-FROM vdaas/vald-base:latest AS builder
+FROM vdaas/vald-ci-container:latest AS builder
 
 ARG BENCH_DATASET_MD5_DIR
 
 WORKDIR ${GOPATH}/src/github.com/vdaas/vald
 
-COPY Makefile .
-COPY Makefile.d Makefile.d
-COPY apis/proto apis/proto
-COPY versions versions
 COPY $BENCH_DATASET_MD5_DIR $BENCH_DATASET_MD5_DIR
 
-RUN make ngt/install
 RUN make bench/datasets
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libhdf5-dev \
-    graphviz \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
