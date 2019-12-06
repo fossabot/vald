@@ -28,7 +28,7 @@ jobs:
     name: bench-agent-stream
     runs-on: ubuntu-latest
     container:
-      image: vdaas/vald-ci-container:nightly
+      image: vdaas/vald-dataset-container:nightly
     steps:
       - name: Check out code.
         uses: actions/checkout@v1
