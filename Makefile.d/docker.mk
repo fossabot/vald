@@ -94,3 +94,12 @@ docker/name/backup-manager-cassandra:
 ## build backup-manager-cassandra image
 docker/build/backup-manager-cassandra: docker/build/base
 	docker build -f dockers/manager/backup/cassandra/Dockerfile -t $(REPO)/$(BACKUP_MANAGER_CASSANDRA_IMAGE) .
+
+.PHONY: docker/name/backup-manager-compress
+docker/name/backup-manager-compress:
+	@echo "$(REPO)/$(BACKUP_MANAGER_COMPRESS_IMAGE)"
+
+.PHONY: docker/build/backup-manager-compress
+## build backup-manager-compress image
+docker/build/backup-manager-compress: docker/build/base
+	docker build -f dockers/manager/backup/compress/Dockerfile -t $(REPO)/$(BACKUP_MANAGER_COMPRESS_IMAGE) .
