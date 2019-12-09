@@ -180,7 +180,7 @@ func (m *mySQLClient) GetIPs(ctx context.Context, uuid string) ([]string, error)
 }
 
 func validateMeta(meta MetaVector) error {
-	if meta.GetVectorString() == "" {
+	if meta.GetVector() == "" {
 		return errors.ErrRequiredMemberNotFilled("vector")
 	}
 	return nil
@@ -194,9 +194,9 @@ func setMetaWithTx(ctx context.Context, tx *dbr.Tx, meta MetaVector) error {
 
 	_, err = tx.InsertBySql("INSERT INTO meta_vector(uuid, vector, meta) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE vector = ?, meta = ?",
 		meta.GetUUID(),
-		meta.GetVectorString(),
+		meta.GetVector(),
 		meta.GetMeta(),
-		meta.GetVectorString(),
+		meta.GetVector(),
 		meta.GetMeta()).ExecContext(ctx)
 	if err != nil {
 		return err
