@@ -28,6 +28,7 @@ import (
 type Server backup.CompressServer
 
 type server struct {
+	backup     service.Backup
 	compressor service.Compressor
 }
 

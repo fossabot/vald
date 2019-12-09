@@ -19,9 +19,9 @@ package service
 type Compressor interface {
 }
 
-type client struct {
+type compressor struct {
 }
 
-func New() (Compressor, error) {
-	return &client{}, nil
+func NewCompressor() (Compressor, error) {
+	return &compressor{}, nil
 }

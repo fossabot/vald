@@ -29,6 +29,9 @@ type Data struct {
 
 	// Server represent all server configurations
 	Server *config.Servers `json:"server_config" yaml:"server_config"`
+
+	// BackupManager represent backup manager configuration
+	BackupManager *config.BackupManager `json:"backup" yaml:"backup"`
 }
 
 func NewConfig(path string) (cfg *Data, err error) {
@@ -40,6 +43,10 @@ func NewConfig(path string) (cfg *Data, err error) {
 
 	if cfg.Server != nil {
 		cfg.Server = cfg.Server.Bind()
+	}
+
+	if cfg.BackupManager != nil {
+		cfg.BackupManager = cfg.BackupManager.Bind()
 	}
 
 	return cfg, nil

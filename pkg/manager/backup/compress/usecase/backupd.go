@@ -19,10 +19,12 @@ package usecase
 import (
 	"context"
 
-	"github.com/vdaas/vald/apis/grpc/manager/backup"
+	gbackup "github.com/vdaas/vald/apis/grpc/manager/backup"
 	iconf "github.com/vdaas/vald/internal/config"
 	"github.com/vdaas/vald/internal/errgroup"
+	"github.com/vdaas/vald/internal/errors"
 	"github.com/vdaas/vald/internal/log"
+	igrpc "github.com/vdaas/vald/internal/net/grpc"
 	"github.com/vdaas/vald/internal/runner"
 	"github.com/vdaas/vald/internal/safety"
 	"github.com/vdaas/vald/internal/servers/server"
@@ -38,17 +40,44 @@ import (
 type run struct {
 	eg         errgroup.Group
 	cfg        *config.Data
+	backup     service.Backup
 	compressor service.Compressor
 	server     starter.Server
 }
 
 func New(cfg *config.Data) (r runner.Runner, err error) {
-	c, err := service.New()
+	eg := errgroup.Get()
+
+	var (
+		backup service.Backup
+	)
+
+	if addrs := cfg.BackupManager.Client.Addrs; len(addrs) == 0 {
+		return nil, errors.ErrInvalidBackupConfig
+	}
+
+	backup, err = service.NewBackup(
+		service.WithBackupAddr(cfg.BackupManager.Client.Addrs[0]),
+		service.WithBackupClient(
+			igrpc.New(
+				append(cfg.BackupManager.Client.Opts(),
+					igrpc.WithErrGroup(eg),
+				)...,
+			),
+		),
+	)
 	if err != nil {
 		return nil, err
 	}
-	g := handler.New(handler.WithCompressor(c))
-	eg := errgroup.Get()
+
+	compressor, err := service.NewCompressor()
+	if err != nil {
+		return nil, err
+	}
+	g := handler.New(
+		handler.WithCompressor(compressor),
+		handler.WithBackup(backup),
+	)
 
 	srv, err := starter.New(
 		starter.WithConfig(cfg.Server),
@@ -69,7 +98,7 @@ func New(cfg *config.Data) (r runner.Runner, err error) {
 		starter.WithGRPC(func(sc *iconf.Server) []server.Option {
 			return []server.Option{
 				server.WithGRPCRegistFunc(func(srv *grpc.Server) {
-					backup.RegisterCompressServer(srv, g)
+					gbackup.RegisterCompressServer(srv, g)
 				}),
 				server.WithPreStartFunc(func() error {
 					// TODO check unbackupped upstream
@@ -91,7 +120,8 @@ func New(cfg *config.Data) (r runner.Runner, err error) {
 	return &run{
 		eg:         eg,
 		cfg:        cfg,
-		compressor: c,
+		backup:     backup,
+		compressor: compressor,
 		server:     srv,
 	}, nil
 }

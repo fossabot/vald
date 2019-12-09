@@ -14,25 +14,29 @@
 // limitations under the License.
 //
 
-// Package grpc provides grpc server logic
-package grpc
+// Package service
+package service
 
-import "github.com/vdaas/vald/pkg/manager/backup/compress/service"
+import "github.com/vdaas/vald/internal/net/grpc"
 
-type Option func(*server)
+type BackupOption func(b *backup) error
 
 var (
-	defaultOpts = []Option{}
+	defaultBackupOpts = []BackupOption{}
 )
 
-func WithCompressor(c service.Compressor) Option {
-	return func(s *server) {
-		s.compressor = c
+func WithBackupAddr(addr string) BackupOption {
+	return func(b *backup) error {
+		b.addr = addr
+		return nil
 	}
 }
 
-func WithBackup(c service.Backup) Option {
-	return func(s *server) {
-		s.backup = c
+func WithBackupClient(client grpc.Client) BackupOption {
+	return func(b *backup) error {
+		if client != nil {
+			b.client = client
+		}
+		return nil
 	}
 }
