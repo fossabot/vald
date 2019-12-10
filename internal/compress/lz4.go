@@ -14,19 +14,40 @@
 // limitations under the License.
 //
 
-// Package lz4 provides compress functions
-package lz4
+// Package compress provides compress functions
+package compress
 
 import (
-	"io"
+	"bytes"
+	"io/ioutil"
+	"unsafe"
 
 	"github.com/pierrec/lz4"
 )
 
-func NewWriter(w io.Writer) io.Writer {
-	return lz4.NewWriter(w)
+type lz4Compressor struct {
 }
 
-func NewReader(r io.Reader) io.Reader {
-	return lz4.NewReader(r)
+func NewLZ4() Compressor {
+	return &lz4Compressor{}
+}
+
+func (l *lz4Compressor) CompressVector(vector []float64) ([]byte, error) {
+	buf := new(bytes.Buffer)
+	_, err := lz4.NewWriter(buf).Write(*(*[]byte)(unsafe.Pointer(&vector)))
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+func (l *lz4Compressor) DecompressVector(bs []byte) ([]float64, error) {
+	r := lz4.NewReader(bytes.NewBuffer(bs))
+	rawBytes, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return *(*[]float64)(unsafe.Pointer(&rawBytes)), nil
 }
