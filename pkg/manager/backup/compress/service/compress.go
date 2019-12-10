@@ -16,12 +16,96 @@
 
 package service
 
+import (
+	"context"
+	"unsafe"
+
+	"github.com/vdaas/vald/internal/compress"
+	"github.com/vdaas/vald/internal/errgroup"
+)
+
 type Compressor interface {
+	Compress(ctx context.Context, vector []float64) (string, error)
+	Decompress(ctx context.Context, str string) ([]float64, error)
+	MultiCompress(ctx context.Context, vectors [][]float64) ([]string, error)
+	MultiDecompress(ctx context.Context, strs []string) ([][]float64, error)
 }
 
 type compressor struct {
+	compressor compress.Compressor
+	limitation int
 }
 
 func NewCompressor() (Compressor, error) {
-	return &compressor{}, nil
+	return &compressor{
+		compressor: compress.NewLZ4(),
+		limitation: 100,
+	}, nil
+}
+
+func (c *compressor) Compress(ctx context.Context, vector []float64) (string, error) {
+	res, err := c.compressor.CompressVector(vector)
+	if err != nil {
+		return "", err
+	}
+
+	return *(*string)(unsafe.Pointer(&res)), nil
+}
+
+func (c *compressor) Decompress(ctx context.Context, str string) ([]float64, error) {
+	return c.compressor.DecompressVector(*(*[]byte)(unsafe.Pointer(&str)))
+}
+
+func (c *compressor) MultiCompress(ctx context.Context, vectors [][]float64) ([]string, error) {
+	eg, ctx := errgroup.New(ctx)
+
+	eg.Limitation(c.limitation)
+
+	res := make([]string, len(vectors))
+	for i, vector := range vectors {
+		eg.Go(func() error {
+			r, err := c.compressor.CompressVector(vector)
+			if err != nil {
+				return err
+			}
+
+			res[i] = *(*string)(unsafe.Pointer(&r))
+
+			return nil
+		})
+	}
+
+	err := eg.Wait()
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (c *compressor) MultiDecompress(ctx context.Context, strs []string) ([][]float64, error) {
+	eg, ctx := errgroup.New(ctx)
+
+	eg.Limitation(c.limitation)
+
+	res := make([][]float64, len(strs))
+	for i, str := range strs {
+		eg.Go(func() error {
+			r, err := c.compressor.DecompressVector(*(*[]byte)(unsafe.Pointer(&str)))
+			if err != nil {
+				return err
+			}
+
+			res[i] = r
+
+			return nil
+		})
+	}
+
+	err := eg.Wait()
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }

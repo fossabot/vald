@@ -48,33 +48,118 @@ func New(opts ...Option) Server {
 }
 
 func (s *server) GetVector(ctx context.Context, req *payload.Backup_GetVector_Request) (res *payload.Backup_MetaVector, err error) {
-	return &payload.Backup_MetaVector{}, nil
+	r, err := s.backup.GetObject(ctx, req.GetUuid())
+	if err != nil {
+		return nil, err
+	}
+
+	vector, err := s.compressor.Decompress(ctx, r.GetVector())
+	if err != nil {
+		return nil, err
+	}
+
+	return &payload.Backup_MetaVector{
+		Uuid:   r.GetUuid(),
+		Meta:   r.GetMeta(),
+		Vector: vector,
+		Ips:    r.GetIps(),
+	}, nil
 }
 
 func (s *server) Locations(ctx context.Context, req *payload.Backup_Locations_Request) (res *payload.Info_IPs, err error) {
-	return &payload.Info_IPs{}, nil
+	r, err := s.backup.GetLocation(ctx, req.GetUuid())
+	if err != nil {
+		return nil, err
+	}
+
+	return &payload.Info_IPs{
+		Ip: r,
+	}, nil
 }
 
 func (s *server) Register(ctx context.Context, meta *payload.Backup_MetaVector) (res *payload.Empty, err error) {
+	vector, err := s.compressor.Compress(ctx, meta.GetVector())
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.backup.Register(ctx, &payload.Backup_Compressed_MetaVector{
+		Uuid:   meta.GetUuid(),
+		Meta:   meta.GetMeta(),
+		Vector: vector,
+		Ips:    meta.GetIps(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return new(payload.Empty), nil
 }
 
 func (s *server) RegisterMulti(ctx context.Context, metas *payload.Backup_MetaVectors) (res *payload.Empty, err error) {
+	mvs := metas.GetVectors()
+	vectors := make([][]float64, 0, len(mvs))
+	for _, mv := range mvs {
+		vectors = append(vectors, mv.GetVector())
+	}
+
+	compressedVecs, err := s.compressor.MultiCompress(ctx, vectors)
+	if err != nil {
+		return nil, err
+	}
+
+	compressedMVs := make([]*payload.Backup_Compressed_MetaVector, 0, len(mvs))
+	for i, mv := range mvs {
+		compressedMVs = append(compressedMVs, &payload.Backup_Compressed_MetaVector{
+			Uuid:   mv.GetUuid(),
+			Meta:   mv.GetMeta(),
+			Vector: compressedVecs[i],
+			Ips:    mv.GetIps(),
+		})
+	}
+
+	err = s.backup.RegisterMultiple(ctx, &payload.Backup_Compressed_MetaVectors{
+		Vectors: compressedMVs,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return new(payload.Empty), nil
 }
 
 func (s *server) Remove(ctx context.Context, req *payload.Backup_Remove_Request) (res *payload.Empty, err error) {
+	err = s.backup.Remove(ctx, req.GetUuid())
+	if err != nil {
+		return nil, err
+	}
+
 	return new(payload.Empty), nil
 }
 
 func (s *server) RemoveMulti(ctx context.Context, req *payload.Backup_Remove_RequestMulti) (res *payload.Empty, err error) {
+	err = s.backup.RemoveMultiple(ctx, req.GetUuid()...)
+	if err != nil {
+		return nil, err
+	}
+
 	return new(payload.Empty), nil
 }
 
 func (s *server) RegisterIPs(ctx context.Context, req *payload.Backup_IP_Register_Request) (res *payload.Empty, err error) {
+	err = s.backup.RegisterIPs(ctx, req.GetUuid(), req.GetIps())
+	if err != nil {
+		return nil, err
+	}
+
 	return new(payload.Empty), nil
 }
 
 func (s *server) RemoveIPs(ctx context.Context, req *payload.Backup_IP_Remove_Request) (res *payload.Empty, err error) {
+	err = s.backup.RemoveIPs(ctx, req.GetIps())
+	if err != nil {
+		return nil, err
+	}
+
 	return new(payload.Empty), nil
 }

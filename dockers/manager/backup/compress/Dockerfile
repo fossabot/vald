@@ -34,13 +34,19 @@ WORKDIR ${GOPATH}/src/github.com/${ORG}/${REPO}/cmd/${PKG}
 COPY cmd/${PKG} .
 
 WORKDIR ${GOPATH}/src/github.com/${ORG}/${REPO}
-RUN CGO_ENABLED=0 \
+RUN CGO_ENABLED=1 \
+    CGO_CXXFLAGS="-g -Ofast -march=native" \
+    CGO_FFLAGS="-g -Ofast -march=native" \
+    CGO_LDFLAGS="-g -Ofast -march=native" \
     GO111MODULE=on \
     GOOS=$(go env GOOS) \
     GOARCH=$(go env GOARCH) \
     go build \
+    --ldflags '-s -w -linkmode "external" -extldflags "-static -fPIC -m64 -pthread -fopenmp -std=c++17 -lstdc++ -lm"' \
     -a \
+    -tags "cgo netgo" \
     -trimpath \
+    -installsuffix "cgo netgo" \
     -o "${APP_NAME}" \
     "cmd/${PKG}/main.go" \
     && upx -9 -o "/usr/bin/${APP_NAME}" "${APP_NAME}"
