@@ -20,6 +20,9 @@ package compress
 import (
 	"unsafe"
 
+	// TODO
+	// which is the better library of zstd algorithm?
+	// "github.com/valyala/gozstd"
 	"github.com/DataDog/zstd"
 )
 

@@ -70,7 +70,10 @@ func New(cfg *config.Data) (r runner.Runner, err error) {
 		return nil, err
 	}
 
-	compressor, err := service.NewCompressor()
+	compressor, err := service.NewCompressor(
+		service.WithCompressorName(cfg.Compressor.CompressorName),
+		service.WithLimitation(cfg.Compressor.ConcurrentLimit),
+	)
 	if err != nil {
 		return nil, err
 	}

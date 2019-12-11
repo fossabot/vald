@@ -32,6 +32,9 @@ type Data struct {
 
 	// BackupManager represent backup manager configuration
 	BackupManager *config.BackupManager `json:"backup" yaml:"backup"`
+
+	// Compressor represent compressor configuration
+	Compressor *config.Compressor `json:"compressor" yaml:"compressor"`
 }
 
 func NewConfig(path string) (cfg *Data, err error) {
@@ -47,6 +50,10 @@ func NewConfig(path string) (cfg *Data, err error) {
 
 	if cfg.BackupManager != nil {
 		cfg.BackupManager = cfg.BackupManager.Bind()
+	}
+
+	if cfg.Compressor != nil {
+		cfg.Compressor = cfg.Compressor.Bind()
 	}
 
 	return cfg, nil

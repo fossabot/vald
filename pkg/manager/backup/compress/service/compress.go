@@ -18,10 +18,12 @@ package service
 
 import (
 	"context"
+	"reflect"
 	"unsafe"
 
 	"github.com/vdaas/vald/internal/compress"
 	"github.com/vdaas/vald/internal/errgroup"
+	"github.com/vdaas/vald/internal/errors"
 )
 
 type Compressor interface {
@@ -36,11 +38,15 @@ type compressor struct {
 	limitation int
 }
 
-func NewCompressor() (Compressor, error) {
-	return &compressor{
-		compressor: compress.NewLZ4(),
-		limitation: 100,
-	}, nil
+func NewCompressor(opts ...CompressorOption) (Compressor, error) {
+	c := new(compressor)
+	for _, opt := range append(defaultCompressorOpts, opts...) {
+		if err := opt(c); err != nil {
+			return nil, errors.ErrOptionFailed(err, reflect.ValueOf(opt))
+		}
+	}
+
+	return c, nil
 }
 
 func (c *compressor) Compress(ctx context.Context, vector []float64) (string, error) {
