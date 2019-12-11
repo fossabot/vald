@@ -20,10 +20,6 @@ import (
 	dbr "github.com/gocraft/dbr/v2"
 )
 
-const (
-	comma = ","
-)
-
 type MetaVector interface {
 	GetUUID() string
 	GetVector() string

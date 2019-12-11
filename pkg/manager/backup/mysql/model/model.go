@@ -17,10 +17,6 @@
 // Package grpc provides grpc server logic
 package model
 
-const (
-	comma = ","
-)
-
 type MetaVector struct {
 	UUID   string
 	Vector string
