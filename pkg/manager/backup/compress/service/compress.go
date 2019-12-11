@@ -63,7 +63,7 @@ func (c *compressor) Decompress(ctx context.Context, str string) ([]float64, err
 }
 
 func (c *compressor) MultiCompress(ctx context.Context, vectors [][]float64) ([]string, error) {
-	eg, ctx := errgroup.New(ctx)
+	eg, _ := errgroup.New(ctx)
 
 	eg.Limitation(c.limitation)
 
@@ -90,7 +90,7 @@ func (c *compressor) MultiCompress(ctx context.Context, vectors [][]float64) ([]
 }
 
 func (c *compressor) MultiDecompress(ctx context.Context, strs []string) ([][]float64, error) {
-	eg, ctx := errgroup.New(ctx)
+	eg, _ := errgroup.New(ctx)
 
 	eg.Limitation(c.limitation)
 
