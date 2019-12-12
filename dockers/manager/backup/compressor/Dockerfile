@@ -18,7 +18,7 @@ FROM vdaas/vald-base:latest AS builder
 
 ENV ORG vdaas
 ENV REPO vald
-ENV APP_NAME compress
+ENV APP_NAME compressor
 ENV PKG manager/backup/${APP_NAME}
 
 WORKDIR ${GOPATH}/src/github.com/${ORG}/${REPO}/internal
@@ -56,7 +56,7 @@ FROM scratch
 # Start From Alpine For Debug Environment
 # FROM alpine:latest
 
-ENV APP_NAME compress
+ENV APP_NAME compressor
 
 # Copy certificates for SSL/TLS
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
@@ -65,4 +65,4 @@ COPY --from=builder /etc/passwd /etc/passwd
 # Copy our static executable
 COPY --from=builder /usr/bin/${APP_NAME} /go/bin/${APP_NAME}
 
-ENTRYPOINT ["/go/bin/compress"]
+ENTRYPOINT ["/go/bin/compressor"]

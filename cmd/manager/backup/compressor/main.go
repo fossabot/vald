@@ -23,8 +23,8 @@ import (
 	"github.com/vdaas/vald/internal/log"
 	"github.com/vdaas/vald/internal/runner"
 	"github.com/vdaas/vald/internal/safety"
-	"github.com/vdaas/vald/pkg/manager/backup/compress/config"
-	"github.com/vdaas/vald/pkg/manager/backup/compress/usecase"
+	"github.com/vdaas/vald/pkg/manager/backup/compressor/config"
+	"github.com/vdaas/vald/pkg/manager/backup/compressor/usecase"
 )
 
 const (
@@ -45,7 +45,7 @@ func main() {
 
 	if err = runner.Do(
 		context.Background(),
-		runner.WithName("backup-manager"),
+		runner.WithName("backup-manager-compressor"),
 		runner.WithVersion(version, maxVersion, minVersion),
 		runner.WithConfigLoader(func(path string) (interface{}, string, error) {
 			cfg, err := config.NewConfig(path)

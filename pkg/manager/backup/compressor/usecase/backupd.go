@@ -29,11 +29,11 @@ import (
 	"github.com/vdaas/vald/internal/safety"
 	"github.com/vdaas/vald/internal/servers/server"
 	"github.com/vdaas/vald/internal/servers/starter"
-	"github.com/vdaas/vald/pkg/manager/backup/compress/config"
-	handler "github.com/vdaas/vald/pkg/manager/backup/compress/handler/grpc"
-	"github.com/vdaas/vald/pkg/manager/backup/compress/handler/rest"
-	"github.com/vdaas/vald/pkg/manager/backup/compress/router"
-	"github.com/vdaas/vald/pkg/manager/backup/compress/service"
+	"github.com/vdaas/vald/pkg/manager/backup/compressor/config"
+	handler "github.com/vdaas/vald/pkg/manager/backup/compressor/handler/grpc"
+	"github.com/vdaas/vald/pkg/manager/backup/compressor/handler/rest"
+	"github.com/vdaas/vald/pkg/manager/backup/compressor/router"
+	"github.com/vdaas/vald/pkg/manager/backup/compressor/service"
 	"google.golang.org/grpc"
 )
 

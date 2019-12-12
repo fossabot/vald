@@ -99,8 +99,8 @@ vald released under Apache 2.0 license, refer [LICENSE](https://github.com/vdaas
   <tr>
     <td>backup manager compressor
     <td></td>
-    <td><a href="https://hub.docker.com/r/vdaas/vald-manager-backup-compress">vdaas/vald-manager-backup-compress</a></td>
-    <td><img src="https://github.com/vdaas/vald/workflows/Build%20docker%20image:%20backup-manager-compress/badge.svg"></td>
+    <td><a href="https://hub.docker.com/r/vdaas/vald-manager-backup-compressor">vdaas/vald-manager-backup-compressor</a></td>
+    <td><img src="https://github.com/vdaas/vald/workflows/Build%20docker%20image:%20backup-manager-compressor/badge.svg"></td>
   </tr>
   <tr>
     <td rowspan=2>meta</td>
